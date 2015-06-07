@@ -167,25 +167,18 @@ därmed lätt att kontrollera med hjälp av enkla kombinatoriska nät, i motsats
 till mer avancerade protokoll där en mikrokontroller är mer eller mindre
 nödvändig. Eftersom att SPI definerar hur data förs över rent fysiskt mycket
 hårdare än det definerar vilken data som skickas, finns det flera olika 
-implementationer av dataprotokollet. Det slutgiltiga valet föll på $ADS7816P$,
-en SPI-bestyckad 12-bitars ACD med ett mycket enkelt dataprotokoll, vilken 
-därför kräver ett mycket enkelt kombinatoriskt när för att styra.
-
-\todo{skriv mer när ålands bilder finns}
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{adccircuit.png}
-\caption{Kopplingsschema för styrsignaler för AD-omvandlaren.}
-\label{adccircuit}
-\end{figure}
-
+implementationer av dataprotokollet. Det slutgiltiga valet föll på $ADS7816P$ 
+\cite{adc}, en SPI-bestyckad 12-bitars ACD med ett mycket enkelt dataprotokoll, 
+se Figur \ref{fig:adcproto}, vilken därför kräver ett mycket enkelt 
+kombinatoriskt när för att styra. Det kombinatoriska nätet baseras på 
+sanningstabellen i Tabell \ref{tab:adc} och presenteras i Figur 
+\ref{fig:adccircuit}.
 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{adcdiagram.png}
 \caption{Dataprotokoll för AD-omvandlaren.}
-\label{adccircuit}
+\label{fig:adcproto}
 \end{figure}
 
 \begin{table}
@@ -218,6 +211,13 @@ $cs$ = $x_3 \wedge x_2 \wedge x_1 \wedge x_0$
 \label{tab:adc}
 \end{table}
 
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{adccircuit.png}
+\caption{Kopplingsschema för styrsignaler för AD-omvandlaren.}
+\label{fig:adccircuit}
+\end{figure}
+
 
 \subsection{Mottagare}
 
@@ -230,26 +230,20 @@ Liksom för valet av ADC i sändaren finns det en stor variation av tillgänglig
 DAC:ar på marknaden. Eftersom att mottagaren ska vara kompatibel med sändaren
 är även denna 12-bitars seriell, och liksom ADC:n föll protokollvalet på SPI. 
 Även här var en enkel implementation av SPI avgörande och därför valdes 
-slutligen $DAC7611P$ för mottagarens DA-omvandling. 
+slutligen $DAC7611P$ \cite{dac} för mottagarens DA-omvandling. 
 
 Denna DAC kräver förutom $CS$-signalen även en $LD$-signal för att ladda in data
-i registret. Detta ger ett något mer komplicerat grindnät än på sändarsidan, och
-3 grindar krävs för att producera de tre insignalerna.
-
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{daccircuit.png}
-\caption{Kopplingsschema för styrsignaler för DA-omvandlaren.}
-\label{daccircuit}
-\end{figure}
-
+i registret, se protokollet i Figur \ref{fig:dacprotocol}. Detta ger ett något 
+mer komplicerat grindnät än på sändarsidan, och 3 grindar krävs för att 
+producera insignalerna. Grindnätet baseras på sanningstabellen i Tabell 
+\ref{tab:dac}, och presenteras i Figur 
+\ref{fig:daccircuit}.
 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{dacdiagram.png}
 \caption{Dataprotokoll för DA-omvandlaren.}
-\label{daccircuit}
+\label{fig:dacprotocol}
 \end{figure}
 
 \begin{table}
@@ -284,6 +278,12 @@ $ld$ = $x3 \wedge x_2 \wedge (x_1 \oplus x_0)$
 \label{tab:dac}
 \end{table}
 
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{daccircuit.png}
+\caption{Kopplingsschema för styrsignaler för DA-omvandlaren.}
+\label{fig:daccircuit}
+\end{figure}
 
 
 \subsection{Klocka och klockpulser}
