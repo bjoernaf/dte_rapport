@@ -44,7 +44,7 @@
 
 \maketitle
 
-\section{Sammanfattning}
+\begin{abstract}
 
 Denna rapport beskriver en implementation av ett system för digital 
 ljudöverföring som en del av projektdelen i kursen Digitalteknik och Elektronik 
@@ -63,7 +63,7 @@ göras en gång vid systemstart. Slutligen använder denna implementation en del
 klocksignal mellan sändare och mottagare, vilket reducerar den praktiska 
 användbarheten av systemet. Det lämnas till framtida arbete att implementera en
 distribuerad klockning av systemet.
-
+\end{abstract}
 
 \section{Inledning}
 
@@ -290,24 +290,21 @@ $ld$ = $x3 \wedge x_2 \wedge (x_1 \oplus x_0)$
 \subsection{Klocka och klockpulser}
 
 Systemet använder sig av flera synkrona integrerade kretsar som kräver en
-klockpuls. Digitalisering av tal kräver att ljudsignalen samplas i minst 
-\todo*{XX} Hz för att fånga upp alla nyanser av ljudsignalen. Detta innebär att 
-en snabb klockpuls måste ges till hela systemet, vilket i sin tur kräver 
-komponenter som tål denna höga klockpuls. Utöver DAC och ADC är det räknaren som 
-kontrollerar styrsignalerna till dessa, som är beroende av klockpulsen. 
+klockpuls. Klockpulsen styr kretsarnas arbetstakt, och således betyder en hög klockpuls att systemet arbetar i en högre takt. Klockpulsen är i detta system input till de två integrerade kretsar som agerar sändare och mottagare, där den styr hastigheten på kretsernas räknarkomponent. I figur \ref{fig:adccircuit} och \ref{fig:daccircuit} kan observeras att var sextonde klockpuls ger så kallad \textit{chip select} signal i båda kretsarna, vilket innebär att AD- eller DA-omvandlaren ska börja sampla ett nytt värde. Detta i sin tur innebär att systemets verkliga arbetstakt gällande konvertering mellan analoga och digitala ljudsignaler är $\frac{1}{16}$ av den givna klockfrekvensen.
+
+Konverteringi av tidskontinuerliga signaler till tidsdiskreta signaler beskrivs av \textit{Nyquist-Shannons samplingsteorem} \cite{sampling}. Teoremet säger i grova drag att för att undvika fel vid diskret sampling av tidskontinuerliga signaler bör samplingstakten vara minst dubbla signalens bandbredd. I detta projekt antas en bandbredd på $4KHz$ täcka det frekvensband som krävs för att fånga upp alla nyanser av mänskligt tal. Samplingsfrekvensen måste då vara minst $8KHz$ vilket i sin tur innebär att systemets klockfrekvens måste vara minst $16 \times 8KHz = 128KHz$.
+
+Då en snabb klockpuls måste ges till hela systemet för att garantera tillräcklig kvalitet på ljudsignalen krävs att de komponenter som ingår i systemet tål denna höga klockpuls. Dessa komponenter inkluderar räknare, ADC och DAC.
 
 Eftersom att klocksynkronisering är ett stort och välkänt problem, har det 
 utelämnats i detta projekt, och klockpulsen delas således av sändare och 
-mottagare i den nuvarande implementationen. En implementation av en distribuerad 
-klocka skulle därför innebära ett eget projekt i sig. Detta innebär att även om 
-data överförs trådlöst är systemet fortfarande beroende av en delad kabel. 
+mottagare i den nuvarande implementationen. En implementation av en distribuerad klocka skulle därför innebära ett eget projekt i sig. Detta innebär att även om data överförs trådlöst är systemet fortfarande beroende av en delad kabel.
 
-\todo{finns nog rätt mycket mer att skriva}
 
 \section{Resultat}
 
 Det implementerade systemet klarar av att störningsfritt överföra ljudsignaler
-mellan sändaren och mottagaren. 
+mellan sändaren och mottagaren.
 
 \section{Diskussion}
 
@@ -315,6 +312,15 @@ mellan sändaren och mottagaren.
 
 \begin{thebibliography}{hejhej}
 
+\bibitem{sampling}
+    Cand{\`e}s, Emmanuel J and Wakin, Michael B,
+    \emph{An introduction to compressive sampling},
+    Signal Processing Magazine, IEEE,
+    volume 25,
+    number 2,
+    pages 21-30,
+    2008.
+}
 \end{thebibliography}
 
 
