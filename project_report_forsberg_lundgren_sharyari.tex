@@ -173,6 +173,50 @@ därför kräver ett mycket enkelt kombinatoriskt när för att styra.
 
 \todo{skriv mer när ålands bilder finns}
 
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{adccircuit.png}
+\caption{Kopplingsschema för styrsignaler för AD-omvandlaren.}
+\label{adccircuit}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{adcdiagram.png}
+\caption{Dataprotokoll för AD-omvandlaren.}
+\label{adccircuit}
+\end{figure}
+
+\begin{table}
+\centering
+\begin{tabular}{| c c c c || c |}
+\hline
+$x_3$ & $x_2$ & $x_1$ & $x_0$ & $cs$ \\\hline
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 1 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 1 & 0 \\
+0 & 1 & 1 & 0 & 0 \\
+0 & 1 & 1 & 1 & 0 \\
+1 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 1 & 0 \\
+1 & 0 & 1 & 0 & 0 \\
+1 & 0 & 1 & 1 & 0 \\
+1 & 1 & 0 & 0 & 0 \\
+1 & 1 & 0 & 1 & 0 \\
+1 & 1 & 1 & 0 & 0 \\
+1 & 1 & 1 & 1 & 1 \\
+\hline
+\end{tabular}
+
+$cs$ = $x_3 \wedge x_2 \wedge x_1 \wedge x_0$
+
+\caption{Sanningstabell för styrsignaler för AD-omvandlaren.}
+\label{tab:adc}
+\end{table}
 
 
 \subsection{Mottagare}
@@ -194,27 +238,24 @@ i registret. Detta ger ett något mer komplicerat grindnät än på sändarsidan
 
 
 \begin{figure}
-\includegraphics{adccircuit.png}
-\caption{bsadfsafs}
-\label{adccircuit}
-\end{figure}
-\begin{figure}
-\includegraphics{adccircuit.png}
-\caption{bsadfsafs}
-\label{adccircuit}
-\end{figure}
-\begin{figure}
-\includegraphics{adcdiagram.png}
-\caption{bsadfsafs}
-\label{adccircuit}
-\end{figure}
-\begin{figure}
-\includegraphics{adcdiagram.png}
-\caption{bsadfsafs}
-\label{adccircuit}
+\centering
+\includegraphics[width=\textwidth]{daccircuit.png}
+\caption{Kopplingsschema för styrsignaler för DA-omvandlaren.}
+\label{daccircuit}
 \end{figure}
 
-\begin{tabular}{c c c c| c c}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{dacdiagram.png}
+\caption{Dataprotokoll för DA-omvandlaren.}
+\label{daccircuit}
+\end{figure}
+
+\begin{table}
+\centering
+\begin{tabular}{|c c c c || c c |}
+\hline
 $x_3$ & $x_2$ & $x_1$ & $x_0$ & $cs$ & $ld$ \\\hline
 0 & 0 & 0 & 0 & 0 & 1 \\
 0 & 0 & 0 & 1 & 0 & 1 \\
@@ -232,33 +273,18 @@ $x_3$ & $x_2$ & $x_1$ & $x_0$ & $cs$ & $ld$ \\\hline
 1 & 1 & 0 & 1 & 1 & 0 \\
 1 & 1 & 1 & 0 & 1 & 0 \\
 1 & 1 & 1 & 1 & 1 & 1 \\
+\hline
 \end{tabular}
 
 $cs$ = $x_3 \wedge x_2$
+
 $ld$ = $x3 \wedge x_2 \wedge (x_1 \oplus x_0)$
 
+\caption{Sanningstabell för styrsignaler för DA-omvandlaren.}
+\label{tab:dac}
+\end{table}
 
-\begin{tabular}{c c c c| c}
-$x_3$ & $x_2$ & $x_1$ & $x_0$ & $cs$ \\\hline
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 1 & 1 & 0 \\
-0 & 1 & 0 & 0 & 0 \\
-0 & 1 & 0 & 1 & 0 \\
-0 & 1 & 1 & 0 & 0 \\
-0 & 1 & 1 & 1 & 0 \\
-1 & 0 & 0 & 0 & 0 \\
-1 & 0 & 0 & 1 & 0 \\
-1 & 0 & 1 & 0 & 0 \\
-1 & 0 & 1 & 1 & 0 \\
-1 & 1 & 0 & 0 & 0 \\
-1 & 1 & 0 & 1 & 0 \\
-1 & 1 & 1 & 0 & 0 \\
-1 & 1 & 1 & 1 & 1 \\
-\end{tabular}
 
-$cs$ = $x_3 \wedge x_2 \wedge x_1 \wedge x_0$
 
 \subsection{Klocka och klockpulser}
 
