@@ -98,7 +98,7 @@ digital-till-analog-omvandlare (DA-omvandlare, DAC), vars funktion är
 inversen av ADC:ns. 
 
 Denna rapport presenterar ett projekt om $4 hp$, i vilket ett 
-ljudöverföringssystem presenteras. Med hjälp av en mikrofon fångas en 
+ljudöverföringssystem implementeras. Med hjälp av en mikrofon fångas en 
 ljudsignal upp, omvandlas till en digital representation, varpå denna digitala 
 representation överförs seriellt via radiovågor till en mottagare. Mottagaren 
 omvandlar i sin tur den digitala representationen tillbaka till en analog signal 
@@ -134,16 +134,7 @@ styrsignalerna till ADC och DAC. Ut- respektive insignalerna till ADC och DAC
 förs sedan över via radio. De komponenter som använts presenteras i Tabell 
 \ref{tab:komponenter}. 
 
-% TODO TODO TODO
-Resterande del av denna sektion är uppdelat i fyra
-undersektioner, den första beskriver implementationen av mikrofonkretsen, 
-varefter den andra beskriver implementationen av sändaren, och slutligen den 
-tredje beskriver implementationen av mottagaren. För att spela upp
-utsignalen användes en färdig högtalare inbyggd i kopplingsborden som användes,
-och därför beskrivs denna komponent ej närmre. Slutligen beskrivs hur de 
-synkrona komponenterna i systemet klockas.
-%END OF TODO TODO TODO
-
+Resterande del av denna sektion är uppdelad i tre undersektioner. Den första beskriver implementationen av mikrofonkretsen, varefter den andra beskriver omvandlingen mellan digitala och analoga representationer, samt överföringen av denna information. Slutligen beskrivs hur de synkrona komponenterna klockas. För att spela upp utsignalen användes en färdig högtalare, och denna komponent beskrivs därför inte närmre.
 
 \begin{table}[h]
     \centering
@@ -169,10 +160,10 @@ synkrona komponenterna i systemet klockas.
 
 \subsection{Mikrofon}
 
-Med hjälp av en enkel mikrofon \cite{mikrofon} förs en ljudsignal in i systemet. 
+Med hjälp av en enkel mikrofon förs en ljudsignal in i systemet. 
 I databladet för mikrofonen hittas den grundläggande krets som krävs för att 
 omvandla vibrationerna i mikrofonen till en analog elektrisk signal, se Figur 
-\ref{fig:mikrofon} 
+\ref{fig:mikrofon}.
 
 \begin{figure}[h]
     \centering
@@ -187,7 +178,7 @@ Denna krets skapar en mycket svag sinusformad signal i storleksordningen
 $\pm 10 mV$. För att digitalisera signalen behöver den förstärkas för att 
 spänningsnivåerna i signalen ska spridas över ett större intervall, vilket ger 
 större inbördes skillnader mellan de diskreta spänningsnivåer som uppmäts av 
-AD-omvandlaren. För detta används två operationsförstärkare, varav en för att 
+AD-omvandlaren. För detta används två operationsförstärkare, en för att 
 förstärka signalen till $\pm 2.5 V$, och den andra för att lyfta signalens 
 effektivvärde från $0$ till $2.5 V$. Dessa två operationer optimerar signalen
 för att de uppmätta värdena ska hamna inom AD-omvandlarens referensinterval
@@ -223,7 +214,7 @@ nödvändig. Eftersom att SPI definerar hur data förs över rent fysiskt mycket
 hårdare än det definerar vilken data som skickas, finns det flera olika 
 implementationer av dataprotokollet.
 
-Det slutgiltiga valet föll på $ADS7816P$ \cite{adc}, en SPI-bestyckad 12-bitars 
+Det slutgiltiga valet föll på $ADS7816P$, en SPI-bestyckad 12-bitars 
 ADC med ett mycket enkelt dataprotokoll, se Figur \ref{fig:adcproto}, vilken 
 därför kräver ett mycket enkelt kombinatoriskt när för att styra. ADC:n använder 
 fyra klockcykler för att sampla en inkommande signal, och 12 cycler för att
@@ -288,7 +279,7 @@ Liksom för valet av ADC i sändaren finns det en stor variation av tillgänglig
 DAC:ar på marknaden. Eftersom att mottagaren ska vara kompatibel med sändaren
 är även denna 12-bitars seriell, och liksom ADC:n föll protokollvalet på SPI. 
 Även här var en enkel implementation av SPI avgörande och därför valdes 
-slutligen $DAC7611P$ \cite{dac} för mottagarens DA-omvandling. 
+slutligen $DAC7611P$ för mottagarens DA-omvandling. 
 
 Denna DAC kräver förutom $CS$-signalen även en $LD$-signal för att ladda in data
 i registret, se protokollet i Figur \ref{fig:dacprotocol}. Detta ger ett något 
@@ -359,7 +350,7 @@ DA-omvandlaren ska börja sampla ett nytt värde. Detta i sin tur innebär att
 systemets verkliga arbetstakt gällande konvertering mellan analoga och digitala 
 ljudsignaler är $\frac{1}{16}$ av den givna klockfrekvensen.
 
-Konverteringi av tidskontinuerliga signaler till tidsdiskreta signaler beskrivs 
+Konvertering av tidskontinuerliga signaler till tidsdiskreta signaler beskrivs 
 av \textit{Nyquist-Shannons samplingsteorem} \cite{sampling}. Teoremet säger i 
 grova drag att för att undvika fel vid diskret sampling av tidskontinuerliga 
 signaler bör samplingstakten vara minst dubbla signalens bandbredd. I detta 
@@ -380,19 +371,16 @@ mottagare i den nuvarande implementationen.
 \section{Resultat}
 
 Det implementerade systemet klarar av att relativt störningsfritt överföra 
-ljudsignaler mellan sändaren och mottagaren. Då en gemensam klocka användes 
-krävdes ingen synkronisering under körning, men däremot krävs synkronisering 
-initialt då komponenterna aktiveras vid olika tidpunkter. För att initialt 
-synkronisera sändare och mottagare läggs en hög reset-signal till DAC:en 
-med en vanlig tryckknapp. Sannolikheten att komponenterna ska vara i synk efter 
-en sådan signal är $\frac{1}{16}$, och proceduren upprepades till dess att 
-ljudåtergivningen var korrekt. 
+ljudsignaler mellan sändaren och mottagaren. Då en gemensam klocka används
+krävs ingen synkronisering under körning, däremot krävs initial synkronisering
+då komponenterna aktiveras vid olika tidpunkter. För att initialt 
+synkronisera sändare och mottagare läggs en hög resetsignal till DAC:n 
+med en vanlig tryckknapp. Sannolikheten att komponenterna är synkroniserade
+efter en sådan signal är $\frac{1}{16}$, och proceduren upprepads således 
+till dess att ljudåtergivningen var korrekt. 
 
-I Figur \ref{oscilloskop} kan vi se den ursprungliga analoga ljudsignalen (efter 
-förstärkning), jämte den återskapade analoga signalen efter att den digitala
-signalen avkodats. Det framgår tydligt hur den återskapade signalen är uppbyggd 
-av ett antal diskreta värden, en effekt som avtar vid högre klockfrekvenser.
-
+I Figur \ref{oscilloskop} kan den ursprungliga analoga ljudsignalen (efter förstärkning) ses jämte den återskapade analoga signalen efter att den digitala
+signalen avkodats. Det framgår tydligt hur den återskapade signalen är uppbyggd av ett antal diskreta värden, en effekt som avtar vid högre klockfrekvenser.
 
 \begin{figure}[h]
 \centering
@@ -430,11 +418,8 @@ den relevanta informationen. Denna representationsinvariant kan utnyttjas för
 synkronisering, i det att DA-omvandlarens \emph{LD}-signal sätts till hög vid 
 den tredje mottagna ettan, varpå \emph{CS}-signalen sätts till låg vid den 
 fjärde, varvid data läses in. Denna lösning skulle dock innebära att i de fall
-den binära representationen av den siffra i den digitala representationen som 
-för tillfället sänds innehåller fyra efter varandra följande ettor skulle detta 
-feltolkas som synkroniseringssignal, och systemet skulle temporärt vara i osynk.
-
-\section{Bibliografi}
+den binära representationen av den siffra i den digitala signalen som 
+för tillfället sänds innehåller fyra efter varandra följande ettor skulle detta feltolkas som synkroniseringssignal, och systemet skulle temporärt vara i osynk.
 
 \begin{thebibliography}{hejhej}
 
