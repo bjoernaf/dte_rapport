@@ -343,7 +343,7 @@ Systemet utnyttjar flera synkrona integrerade kretsar som kräver en
 klockpuls. Klockpulsen styr kretsarnas arbetstakt, och således betyder en hög 
 klockpuls att systemet arbetar i en högre takt. Klockpulsen är i detta system 
 input till de två integrerade kretsar som agerar sändare och mottagare, där den 
-styr hastigheten på kretsernas räknarkomponent. I figur \ref{fig:adccircuit} och 
+styr hastigheten på kretsernas räknarkomponent. I Figur \ref{fig:adccircuit} och 
 \ref{fig:daccircuit} kan observeras att var sextonde klockpuls ger så kallad 
 \textit{chip select} signal i båda kretsarna, vilket innebär att AD- eller 
 DA-omvandlaren ska börja sampla ett nytt värde. Detta i sin tur innebär att 
@@ -374,7 +374,7 @@ Det implementerade systemet klarar av att relativt störningsfritt överföra
 ljudsignaler mellan sändare och mottagare. Då en gemensam klocka används
 krävs ingen synkronisering under körning, däremot krävs initial synkronisering
 då komponenterna aktiveras vid olika tidpunkter. För att initialt 
-synkronisera sändare och mottagare läggs en hög resetsignal till DAC:n 
+synkronisera sändare och mottagare läggs en hög \emph{reset}-signal till DAC:en 
 med en vanlig tryckknapp. Sannolikheten att komponenterna är synkroniserade
 efter en sådan signal är $\frac{1}{16}$, och proceduren upprepas således 
 till dess att ljudåtergivningen är korrekt. 
