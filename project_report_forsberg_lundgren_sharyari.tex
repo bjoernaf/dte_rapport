@@ -1,6 +1,7 @@
 
 \documentclass[a4paper,10pt]{article}
 %\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
 \usepackage[swedish]{babel}
 \usepackage{todonotes}
 
@@ -34,7 +35,7 @@
 
 \usepackage{amsmath}
 
-\title{1TE717 Digitalteknik och Elektronik \\ \textbf{Digital överföring av ljudvågor över RF-radio}}
+\title{{\small 1TE717 Digitalteknik och Elektronik, Projekt} \\ \textbf{Digital överföring av ljudvågor över RF-radio}}
 
 \author{Bj{\"o}rn Forsberg \and Sven Lundgren \and Jonathan Sharyari}
 %\textwidth 5.5in 
@@ -44,7 +45,7 @@
 
 \maketitle
 
-\begin{abstract}
+\abstract
 
 Denna rapport beskriver en implementation av ett system för digital 
 överföring av ljud som en del av det projekt som ingår i kursen Digitalteknik 
@@ -58,12 +59,11 @@ flippa är mindre än risken för störningar på en analog signal.
 Vid enklare tester visar sig systemet kapabelt att föra över mycket exakta 
 signaler från sändare till mottagare. Det är dock mycket känsligt för att hamna
 i otakt, i det att överföringen inte har någon tydlig början och slut. I och med
-detta måste mottagaren manuellt synkronisera signalen. Detta måste dock endast
-göras en gång vid systemstart. Slutligen använder denna implementation en delad
-klocksignal mellan sändare och mottagare, vilket reducerar den praktiska 
-användbarheten av systemet. Det lämnas till framtida arbete att implementera en
-distribuerad klockning av systemet.
-\end{abstract}
+detta måste mottagaren manuellt synkronisera signalen, om så endast en gång vid 
+systemstart. Slutligen använder denna implementation en delad klocksignal mellan 
+sändare och mottagare, vilket reducerar den praktiska användbarheten av 
+systemet. Det lämnas till framtida arbete att implementera en distribuerad 
+klockning av systemet.
 
 \section{Inledning}
 
@@ -87,15 +87,15 @@ tryckförändringarna i luften översättas till diskreta värden, som kan
 representeras av ett tal.
 Exempelvis kan intervallet $[u^{min}, u^{max}]$ delas upp i $n$ diskreta 
 delintervall, var och en representerad av ett binärt tal. Ju högre man väljer
-$n$, desto fler bitar behövs för att representera alla delintervall. Antalet 
-intervall som kan representeras ges av uttrycket $n = 2^b$ där $b$ är antalet 
-bitar som används för att uttrycka värdet. Elektriska komponenter som översätter
+$n$, desto fler bitar behövs för att representera alla delintervall, men ju
+bättre approximeras den analoga signalen av den digitala. Antalet intervall som 
+kan representeras ges av uttrycket $n = 2^b$ där $b > 0$ och ger antalet bitar 
+som används för att uttrycka värdet. Elektriska komponenter som översätter 
 analoga spänningar till dess digitala representation kallas 
 analog-till-digital-omvandlare (AD-omvandlare, ADC). 
 För att återföra den digitala signalen till sin analoga form används en
 digital-till-analog-omvandlare (DA-omvandlare, DAC), vars funktion är
-inversen av ADC:ns. En komplett lista på komponenter som använts i projektet
-presenteras i tabell \ref{tab:komponenter}.
+inversen av ADC:ns. 
 
 Denna rapport presenterar ett projekt om $4 hp$, i vilket ett 
 ljudöverföringssystem presenteras. Med hjälp av en mikrofon fångas en 
@@ -116,25 +116,43 @@ mellan logiskt hög till låg eller vice versa.
 
 \section{Genomförande}
 
-Implementeringen av kretsen gjordes med ett enkelt kombinatoriskt nät som ger
+Systemet implementeras i tre separata delar där varje del utför en avgränsad 
+uppgift inom systemet. Den första delen hanterar ljudupptagning, vilket sker med
+hjälp av en vanlig mikrofon. De två senare delarna implementerar sändare
+respektive mottagare för den digitaliserade ljudsignalen. En översikt av 
+systemet presenteras i Figur \ref{fig:sysoversikt}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{sysoversikt.png}
+    \caption{En översiktlig vy över det implementerade systemet.}
+    \label{fig:sysoversikt}
+\end{figure}
+
+Sändar- och mottagardelarna styrs av ett enkelt kombinatoriskt nät som ger 
 styrsignalerna till ADC och DAC. Ut- respektive insignalerna till ADC och DAC
 förs sedan över via radio. De komponenter som använts presenteras i Tabell 
-\ref{tab:komponenter}. Resterande del av denna sektion är uppdelat i fyra
+\ref{tab:komponenter}. 
+
+% TODO TODO TODO
+Resterande del av denna sektion är uppdelat i fyra
 undersektioner, den första beskriver implementationen av mikrofonkretsen, 
 varefter den andra beskriver implementationen av sändaren, och slutligen den 
 tredje beskriver implementationen av mottagaren. För att spela upp
 utsignalen användes en färdig högtalare inbyggd i kopplingsborden som användes,
 och därför beskrivs denna komponent ej närmre. Slutligen beskrivs hur de 
 synkrona komponenterna i systemet klockas.
+%END OF TODO TODO TODO
 
-\begin{table}
+
+\begin{table}[h]
     \centering
     \begin{tabular}{|l|l|}
     \hline
     1 st & Texas Instruments ADS7816P, 12-bit serial ADC \\
     1 st & Texas Instruments DAC7611P, 12-bit serial DAC \\
     1 st & Seriell radiosändare och mottagare \\
-    1 st & Mikrofon \\
+    1 st & Mikrofon KEEG1538WB-100LB \\
     2 st & 4-bitars räknare \\
     1 st & 4-vägs AND-grind\\
     1 st & 2-vägs AND-grind \\
@@ -150,19 +168,43 @@ synkrona komponenterna i systemet klockas.
 \end{table}
 
 \subsection{Mikrofon}
-I det här projektet användes mikrofonen \todo{???}. I databladet för mikrofonen 
-hittas den grundläggande krets som krävs för att omvandla ljud till en analog 
-elektrisk signal, se figure \ref{mikrofon} 
-\todo{Bilden finns i databladet, men jag vetefan}. 
-Denna krets skapar en ytterst låg signal, uppemot 10 millivolt. För att på ett 
-bra sätt kunna digitalisera signalen användes dels en operationsförstärkare för 
-att förstärka signalen, dels en operationsförstärkare för att lyfta signalen så 
-att signalen skulle röra sig inom det intervall som AD-omvandlaren är designad 
-för, 0 till 5 Volt.
+
+Med hjälp av en enkel mikrofon \cite{mikrofon} förs en ljudsignal in i systemet. 
+I databladet för mikrofonen hittas den grundläggande krets som krävs för att 
+omvandla vibrationerna i mikrofonen till en analog elektrisk signal, se Figur 
+\ref{fig:mikrofon} 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{mik.jpg}
+    \caption{Krets för att få ut den analoga elektriska signal som representerar
+	     vibrationerna som tas upp av mikrofonen. Hämtat från mikrofonens
+	     datablad.}
+    \label{fig:mikrofon}
+\end{figure}
+
+Denna krets skapar en mycket svag sinusformad signal i storleksordningen 
+$\pm 10 mV$. För att digitalisera signalen behöver den förstärkas för att 
+spänningsnivåerna i signalen ska spridas över ett större intervall, vilket ger 
+större inbördes skillnader mellan de diskreta spänningsnivåer som uppmäts av 
+AD-omvandlaren. För detta används två operationsförstärkare, varav en för att 
+förstärka signalen till $\pm 2.5 V$, och den andra för att lyfta signalens 
+effektivvärde från $0$ till $2.5 V$. Dessa två operationer optimerar signalen
+för att de uppmätta värdena ska hamna inom AD-omvandlarens referensinterval
+$[0,5V]$.
+
+\subsection{Digital överföring}
+
+För att omvandla den analoga ljudsignalen till en digital signal, och sända den 
+trådlöst används enkla $433 MHz$-sändare och -mottagare. Dessa komponenter
+beter sig på samma sätt som en kabelbunden ledare, i det att den spänning i 
+intervallet $[0, 5V]$ som läggs på sändarens datapin återges på mottagarens
+motsvarighet. Av denna anledning beskrivs inte överföringen som sådan närmre,
+utan de två följande undersektionerna presenterar hur data kodas och avkodas
+i sändare respektive mottagare.
 
 
-
-\subsection{Sändare}
+\subsubsection{Sändare}
 
 Den mest centrala komponenten i sändaren är ADC:n, som konverterar den analoga
 signalen från mikrofonen till en 12-bitars digital signal som sedan sänds över
@@ -190,14 +232,14 @@ styrsignalen \emph{CS} (Chip Select) går från hög till låg. Detta resulterar
 sanningstabellen i tabell \ref{tab:adc} och det motsvarande kombinatoriska nätet 
 i Figur \ref{fig:adccircuit}.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{adcdiagram.png}
-\caption{Dataprotokoll för AD-omvandlaren.}
+\caption{Dataprotokoll för AD-omvandlaren, hämtat från dess datablad.}
 \label{fig:adcproto}
 \end{figure}
 
-\begin{table}
+\begin{table}[h]
 \centering
 \begin{tabular}{| c c c c || c |}
 \hline
@@ -227,15 +269,15 @@ $cs$ = $x_3 \wedge x_2 \wedge x_1 \wedge x_0$
 \label{tab:adc}
 \end{table}
 
-\begin{figure}
+\begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{adccircuit.png}
+\includegraphics[width=0.6\textwidth]{adccircuit.png}
 \caption{Kopplingsschema för styrsignaler för AD-omvandlaren.}
 \label{fig:adccircuit}
 \end{figure}
 
 
-\subsection{Mottagare}
+\subsubsection{Mottagare}
 
 Liksom för sändaren är det konverteringen mellan analog och digital data som
 är den centrala funktionen i mottagaren. I detta fall är det den digitala 
@@ -255,14 +297,14 @@ producera insignalerna. Grindnätet baseras på sanningstabellen i Tabell
 \ref{tab:dac}, och presenteras i Figur 
 \ref{fig:daccircuit}.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{dacdiagram.png}
-\caption{Dataprotokoll för DA-omvandlaren.}
+\caption{Dataprotokoll för DA-omvandlaren, hämtat från dess datablad.}
 \label{fig:dacprotocol}
 \end{figure}
 
-\begin{table}
+\begin{table}[h]
 \centering
 \begin{tabular}{|c c c c || c c |}
 \hline
@@ -294,25 +336,19 @@ $ld$ = $x3 \wedge x_2 \wedge (x_1 \oplus x_0)$
 \label{tab:dac}
 \end{table}
 
-\begin{figure}
+\begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{daccircuit.png}
+\includegraphics[width=0.6\textwidth]{daccircuit.png}
 \caption{Kopplingsschema för styrsignaler för DA-omvandlaren.}
 \label{fig:daccircuit}
 \end{figure}
 
 
 
-\subsection{Trådlös Överföring}
-För att seriellt överföra digital information trådlöst användes en sändare och 
-en mottagare \todo{Referera till Kjell och Company eller?}. Inga datablad fanns 
-tillgängliga för komponenterna, men i praktiken var användandet av dessa 
-komponenter var ytterst enkelt. Data som skickas in till mottagaren ut på igen i 
-samma format. De kan därför liknas vid en trådlös kabel.
 
 \subsection{Klocka och klockpulser}
 
-Systemet använder sig av flera synkrona integrerade kretsar som kräver en
+Systemet utnyttjar flera synkrona integrerade kretsar som kräver en
 klockpuls. Klockpulsen styr kretsarnas arbetstakt, och således betyder en hög 
 klockpuls att systemet arbetar i en högre takt. Klockpulsen är i detta system 
 input till de två integrerade kretsar som agerar sändare och mottagare, där den 
@@ -338,11 +374,7 @@ höga klockpuls. Dessa komponenter inkluderar räknare, ADC och DAC.
 
 Eftersom att klocksynkronisering är ett stort och välkänt problem, har det 
 utelämnats i detta projekt, och klockpulsen delas således av sändare och 
-mottagare i den nuvarande implementationen. Att skapa en implementation av denna 
-krets med synkronisering skulle innebära en relativt hög extra 
-arbetsbelastining, och vi har här valt att använda en delad klocka för att 
-synkronisera sändare och mottagare. En ungefärlig lösning på problemet beskrivs 
-dock i Sektion \ref{synkronisering}.
+mottagare i den nuvarande implementationen. 
 
 
 \section{Resultat}
@@ -351,20 +383,20 @@ Det implementerade systemet klarar av att relativt störningsfritt överföra
 ljudsignaler mellan sändaren och mottagaren. Då en gemensam klocka användes 
 krävdes ingen synkronisering under körning, men däremot krävs synkronisering 
 initialt då komponenterna aktiveras vid olika tidpunkter. För att initialt 
-synkronisera sändaren och mottagaren skickades en hög reset-signalen till DAC:en 
+synkronisera sändare och mottagare läggs en hög reset-signal till DAC:en 
 med en vanlig tryckknapp. Sannolikheten att komponenterna ska vara i synk efter 
-en sådan signal är 1/16, och proceduren upprepades till dess att 
+en sådan signal är $\frac{1}{16}$, och proceduren upprepades till dess att 
 ljudåtergivningen var korrekt. 
 
 I Figur \ref{oscilloskop} kan vi se den ursprungliga analoga ljudsignalen (efter 
-förstärkning), jämte den återskapade analoga signalen efter digitalisering. Det 
-går enkelt att se hur den återskapade signalen bestårm av ett antal diskreta 
-värden.
+förstärkning), jämte den återskapade analoga signalen efter att den digitala
+signalen avkodats. Det framgår tydligt hur den återskapade signalen är uppbyggd 
+av ett antal diskreta värden, en effekt som avtar vid högre klockfrekvenser.
 
 
-\begin{figure}
+\begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{oscilloskop.jpg}
+\includegraphics[width=0.84\textwidth]{oscilloskop.jpg}
 \caption{Analoga signaler före och efter digitalisering. Den kontinuerliga 
          kurvan utgör den ursprungliga signalen och den streckade kurvan den 
 	 återskapade signalen.}
@@ -377,29 +409,30 @@ värden.
 De störningar som uppstår har främst två orsaker. Vid trådlös överföring finns 
 alltid risken att data korrumperas eller försvinner, en risk som ökar med 
 avståndet mellan sändare och mottagare. Utöver detta så används en samplingstakt 
-på 128KHz, med vilken frekvenser upp till 4Khz kan återskapas. Då mänskligt tal 
-har frekvenser upp mot 20Khz innebär detta att högre frekvenser än 4Khz 
-feltolkas och tillför en mindre störning till signalen. Detta kan lätt åtgärdas 
-med ett lågpassfilter som filtrerar bort högre frekvenser.
+på $128 KHz$, med vilken frekvenser upp till $4 KHz$ kan återskapas. Eftersom 
+att mikrofonen även fångar upp högre frekvenser innebär detta att dessa 
+frekvenser feltolkas vid sampling och tillför en mindre störning till signalen. 
+Problemet avhjälps enkelt med ett lågpassfilter som filtrerar bort högre 
+frekvenser från den analoga signalen innan den når AD-omvandlaren..
 
 \subsection{Synkronisering}
 \label{synkronisering}
-Synkronisering över avstånd är generellt ett svårt problem att lösa, men enklare 
-lösningar går att skapa, särskilt i fallet av ljudöverföring eftersom 
-feltoleransen är relativt hög. Ett sätt att göra detta är att utnyttja det 
-faktum att både ADC och DAC använder 16 klockcykler för att överföra 12 bitar 
-data. Under de fyra klockcykler som ADC:n inte skickar data skickas istället 
-ettor (höga signaler). Digitalomvandlaren tar då emot fyra ettor innan den 
-relevanta informationen, efter den tredje ettan höjs \emph{LD} till hög och vid 
-den fjärde sänks \emph{CS} till låg varvid data läses in. Ett sätt att 
-synkronisera vore därför att istället för kretsen i figur \ref{dacprotocol}, 
-skapa ett nät som läser av den inkommande dataströmmen och höjer \emph{LD} var 
-gång den upptäcker tre på varandra följande ettor, och \emph{CS} vid fyra ettor. 
-Med en sådan krets skulle information synkroniseras för varje siffra som skickas 
-över. Däremot skulle detta innebära att om den binära representationen av den 
-siffra som skickas innehåller fyra efter varandra följande ettor skulle detta 
-feltolkas, och systemet skulle temporärt vara i osynk.
 
+Varaktig synkronisering med distribuerade klockor är generellt ett svårt problem 
+att lösa. Det är dock möjligt att implementera enklare lösningar om man är
+villig att acceptera en viss felfrekvens. I fallet ljudöverföring är 
+feltoleransen relativt hög, och det är därför möjligt att implementera 
+förenklade synkroniseringsmekanismer. Ett sätt att göra detta är att utnyttja 
+det faktum att både ADC och DAC använder 16 klockcykler för att överföra 12 
+bitar data. Under de fyra klockcykler som ADC:n inte skickar data skickas 
+istället ettor (höga signaler). Digitalomvandlaren tar då emot fyra ettor innan 
+den relevanta informationen. Denna representationsinvariant kan utnyttjas för
+synkronisering, i det att DA-omvandlarens \emph{LD}-signal sätts till hög vid 
+den tredje mottagna ettan, varpå \emph{CS}-signalen sätts till låg vid den 
+fjärde, varvid data läses in. Denna lösning skulle dock innebära att i de fall
+den binära representationen av den siffra i den digitala representationen som 
+för tillfället sänds innehåller fyra efter varandra följande ettor skulle detta 
+feltolkas som synkroniseringssignal, och systemet skulle temporärt vara i osynk.
 
 \section{Bibliografi}
 
