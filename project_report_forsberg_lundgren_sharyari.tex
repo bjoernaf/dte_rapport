@@ -100,7 +100,7 @@ inversen av ADC:ns.
 Denna rapport presenterar ett projekt om $4 hp$, i vilket ett 
 ljudöverföringssystem implementeras. Med hjälp av en mikrofon fångas en 
 ljudsignal upp, omvandlas till en digital representation, varpå denna digitala 
-representation överförs seriellt via radiovågor till en mottagare. Mottagaren 
+representation seriellt överförs via radiovågor till en mottagare. Mottagaren 
 omvandlar i sin tur den digitala representationen tillbaka till en analog signal 
 som kan omvandlas till ljud av en högtalare.
 
@@ -203,7 +203,7 @@ radio.
 
 Det finns ett mycket stort utbud av integrerade kretsar för ADC:er på marknaden,
 med flera inbördes olika egenskaper. Det första att ta hänsyn till vid valet av
-ADC är seriell eller parallel utsignal. Eftersom att utsignalen skickas över 
+ADC är seriell eller parallel utsignal. Då att utsignalen skickas över 
 radio som en seriell signal är valet av seriell ADC uppenbart. För seriella 
 komponenter finns sedan åtskilliga val vad gäller protokoll som kontrollerar när
 och hur data skickas ut från komponenten. I detta fall föll valet på en 
@@ -400,7 +400,7 @@ avståndet mellan sändare och mottagare. Utöver detta så används en sampling
 på $128 KHz$, med vilken frekvenser upp till $4 KHz$ kan återskapas. Eftersom 
 att mikrofonen även fångar upp högre frekvenser innebär detta att dessa 
 frekvenser feltolkas vid sampling och tillför en mindre störning till signalen. 
-Problemet avhjälps enkelt med ett lågpassfilter som filtrerar bort högre 
+Problemet kan enkelt avhjälpas med ett lågpassfilter som filtrerar bort högre 
 frekvenser från den analoga signalen innan den når AD-omvandlaren.
 
 \subsection{Synkronisering}
@@ -408,18 +408,20 @@ frekvenser från den analoga signalen innan den når AD-omvandlaren.
 
 Varaktig synkronisering med distribuerade klockor är generellt ett svårt problem 
 att lösa. Det är dock möjligt att implementera enklare lösningar om man är
-villig att acceptera en viss felfrekvens. I fallet ljudöverföring är 
+villig att acceptera en viss felmarginal. I fallet ljudöverföring är 
 feltoleransen relativt hög, och det är därför möjligt att implementera 
 förenklade synkroniseringsmekanismer. Ett sätt att göra detta är att utnyttja 
 det faktum att både ADC och DAC använder 16 klockcykler för att överföra 12 
 bitar data. Under de fyra klockcykler som ADC:n inte skickar data skickas 
-istället ettor (höga signaler). Digitalomvandlaren tar då emot fyra ettor innan 
-den relevanta informationen. Denna representationsinvariant kan utnyttjas för
-synkronisering, i det att DA-omvandlarens \emph{LD}-signal sätts till hög vid 
-den tredje mottagna ettan, varpå \emph{CS}-signalen sätts till låg vid den 
-fjärde, varvid data läses in. Denna lösning skulle dock innebära att i de fall
-den binära representationen av den siffra i den digitala signalen som 
-för tillfället sänds innehåller fyra efter varandra följande ettor skulle detta feltolkas som synkroniseringssignal, och systemet skulle temporärt vara osynkroniserat.
+istället odefinerad data (i praktiken höga signaler).
+Denna representationsinvariant kan utnyttjas för
+synkronisering, i det att AD-omvandlarens odefinerade bitar med ett sekvensnät kan
+sättas till en bestämd följd, exempelvis 0110, varvid DA-omvandlarens \emph{LD}-signal sätts till hög vid 
+mottagandet av de första tre bitarna 011, och \emph{CS}-signalen sätts till låg vid den 
+fjärde biten. Denna lösning skulle dock innebära att i de fall
+den binära representationen av en analoga signal, vars digitala representation  
+innehåller den valda synkroniseringsföljden (exempelvis 0110) skulle feltolkas som
+ synkroniseringssignal, och systemet skulle temporärt vara osynkroniserat.
 
 \begin{thebibliography}{hejhej}
 
