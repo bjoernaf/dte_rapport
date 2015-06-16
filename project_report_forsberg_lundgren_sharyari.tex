@@ -359,13 +359,11 @@ och mottagaren inte kan ändra utsignalen förrän hela det binära talet har
 systemet ytterligare fyra klockpulser för provtagning på insignalen, och därmed 
 överförs endast ett diskret värde var 16 klockpuls.
 
-Konvertering av tidskontinuerliga signaler till tidsdiskreta signaler beskrivs 
-av \textit{Nyquist-Shannons samplingsteorem} \cite{sampling}. Teoremet säger i 
-grova drag att för att undvika fel vid diskret sampling av tidskontinuerliga 
-signaler bör samplingstakten vara minst dubbla signalens bandbredd. I detta 
-projekt antas en bandbredd på $4KHz$ täcka det frekvensband som krävs för att 
+I \cite{sampling} visar Shannon att en funktion begränsad av bandbredd $W$ i tidsintervall $T$ kan beskrivas av minst $2WT$ punkter. Detta kallas populärt för \textit{Nyquist-Shannons samplingsteorem}, och teoremet säger med andra ord vid diskret sampling av en tidskontinuerlig signal bör samplingstakten vara minst dubbelt så hög som signalens bandbredd.
+
+I detta projekt antas en bandbredd på $4KHz$ täcka det frekvensband som krävs för att 
 fånga upp alla nyanser av mänskligt tal. Samplingsfrekvensen måste då vara 
-minst $8KHz$ vilket i sin tur innebär att systemets klockfrekvens måste vara 
+minst $8KHz$ vilket i, sin tur innebär att systemets klockfrekvens måste vara 
 minst $16 \times 8KHz = 128KHz$, återigen eftersom det tar 16 klockpulser att
 överföra signalen.
 
@@ -448,13 +446,13 @@ innehåller den valda synkroniseringsföljden (exempelvis 0110) skulle feltolkas
 \begin{thebibliography}{hejhej}
 
 \bibitem{sampling}
-    {Cand{\`e}s, Emmanuel J and Wakin, Michael B,
-    \emph{An introduction to compressive sampling},
-    Signal Processing Magazine, IEEE,
-    volume 25,
-    number 2,
-    pages 21-30,
-    2008.
+    {Shannon, Claude E,
+    \emph{Communication in the presence of noise},
+    Proceedings of the IRE, IEEE,
+    volume 37,
+    number 1,
+    pages 10-21,
+    1949.
 }
 
 \bibitem{radio} "433 MHz Sändar- och mottagarmodul". (2015, June 16). 
