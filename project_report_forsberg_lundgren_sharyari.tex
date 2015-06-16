@@ -53,8 +53,9 @@ och Elektronik (1TE717). Systemet använder en mikrofon för att fånga upp
 ljudvågor, vilka sedan konverteras till en digital signal och sänds via radio 
 till en mottagare. Mottagaren konverterar tillbaka signalen till en analog 
 representation som sedan kan spelas upp på en högtalare. Den digitala 
-överföringen minskar risken för störningar, då risken att en etta och nolla ska 
-flippa är mindre än risken för störningar på en analog signal.
+överföringen minskar risken för störningar, då risken att spänningen ska ändras
+så pass mycket att den logiska betydelsen av signalen ändras är mindre än risken 
+för störningar på en analog signal.
 
 Vid enklare tester visar sig systemet kapabelt att föra över mycket exakta 
 signaler från sändare till mottagare. Det är dock mycket känsligt för att hamna
@@ -107,7 +108,7 @@ som kan omvandlas till ljud av en högtalare.
 Att gå igenom dessa steg för att omvandla en analog signal till en digital, för
 att sedan direkt återföra den till den analoga representationen kan låta 
 onödigt, men motiveras utav den lägre störningsrisken i digital överföring. 
-Detta eftersom att en störning på en analog signal överlagras in i signalen, och
+Detta eftersom en störning på en analog signal överlagras in i signalen, och
 det är kostsamt att rensa ut dessa störningar. I motsats kommer en störning på
 en digital signal i normalfallet inte påverka informationen i signalen, eftersom
 att störningen måste vara mycket stor för att signalens betydelse ska skifta
@@ -161,9 +162,9 @@ Resterande del av denna sektion är uppdelad i tre undersektioner. Den första b
 \subsection{Mikrofon}
 
 Med hjälp av en enkel mikrofon förs en ljudsignal in i systemet. 
-I databladet för mikrofonen hittas den grundläggande krets som krävs för att 
-omvandla vibrationerna i mikrofonen till en analog elektrisk signal, se Figur 
-\ref{fig:mikrofon}.
+I databladet för mikrofonen \cite{mic} hittas den grundläggande krets som krävs 
+för att omvandla vibrationerna i mikrofonen till en analog elektrisk signal, se 
+Figur \ref{fig:mikrofon}.
 
 \begin{figure}[h]
     \centering
@@ -187,13 +188,12 @@ $[0,5V]$.
 \subsection{Digital överföring}
 
 För att omvandla den analoga ljudsignalen till en digital signal, och sända den 
-trådlöst används enkla $433 MHz$-sändare och -mottagare. Dessa komponenter
-beter sig på samma sätt som en kabelbunden ledare, i det att den spänning i 
-intervallet $[0, 5V]$ som läggs på sändarens datapin återges på mottagarens
-motsvarighet. Av denna anledning beskrivs inte överföringen som sådan närmre,
-utan de två följande undersektionerna presenterar hur data kodas och avkodas
-i sändare respektive mottagare.
-
+trådlöst används enkla $433 MHz$-sändare och -mottagare \cite{radio}. Dessa 
+komponenter beter sig på samma sätt som en kabelbunden ledare, i det att den 
+spänning i intervallet $[0, 5V]$ som läggs på sändarens datapin återges på 
+mottagarens motsvarighet. Av denna anledning beskrivs inte överföringen som 
+sådan närmre, utan de två följande undersektionerna presenterar hur data kodas 
+och avkodas i sändare respektive mottagare.
 
 \subsubsection{Sändare}
 
@@ -207,21 +207,22 @@ ADC är seriell eller parallel utsignal. Då att utsignalen skickas över
 radio som en seriell signal är valet av seriell ADC uppenbart. För seriella 
 komponenter finns sedan åtskilliga val vad gäller protokoll som kontrollerar när
 och hur data skickas ut från komponenten. I detta fall föll valet på en 
-SPI-bestyckad ADC, eftersom att SPI är ett förhållandevis enkelt protokoll, och
+SPI-bestyckad ADC, eftersom SPI är ett förhållandevis enkelt protokoll, och
 därmed lätt att kontrollera med hjälp av enkla kombinatoriska nät, i motsats 
 till mer avancerade protokoll där en mikrokontroller är mer eller mindre
-nödvändig. Eftersom att SPI definerar hur data förs över rent fysiskt mycket
+nödvändig. Eftersom SPI definerar hur data förs över rent fysiskt mycket
 hårdare än det definerar vilken data som skickas, finns det flera olika 
 implementationer av dataprotokollet.
 
-Det slutgiltiga valet föll på $ADS7816P$, en SPI-bestyckad 12-bitars 
+Det slutgiltiga valet föll på $ADS7816P$ \cite{adc}, en SPI-bestyckad 12-bitars 
 ADC med ett mycket enkelt dataprotokoll, se Figur \ref{fig:adcproto}, vilken 
 därför kräver ett mycket enkelt kombinatoriskt när för att styra. ADC:n använder 
 fyra klockcykler för att sampla en inkommande signal, och 12 cycler för att
 seriellt sända ut dess digitala representation. Sampling påbörjas då 
-styrsignalen \emph{CS} (Chip Select) går från hög till låg. Detta resulterar i 
-sanningstabellen i tabell \ref{tab:adc} och det motsvarande kombinatoriska nätet 
-i Figur \ref{fig:adccircuit}.
+styrsignalen \emph{CS} (Chip Select) går från hög till låg, och därför används
+en 4-bitars räknare för att sätta signalen till hög var 16:e klockpuls. Detta 
+resulterar i sanningstabellen i tabell \ref{tab:adc} och det motsvarande 
+kombinatoriska nätet i Figur \ref{fig:adccircuit}.
 
 \begin{figure}[h]
 \centering
@@ -256,7 +257,8 @@ $x_3$ & $x_2$ & $x_1$ & $x_0$ & $cs$ \\\hline
 
 $cs$ = $x_3 \wedge x_2 \wedge x_1 \wedge x_0$
 
-\caption{Sanningstabell för styrsignaler för AD-omvandlaren.}
+\caption{Sanningstabell för styrsignaler för AD-omvandlaren. $x_i$ motsvarar den
+$i$:te datapinen från räknaren.}
 \label{tab:adc}
 \end{table}
 
@@ -276,16 +278,17 @@ signalen som mottages över radio som ska konverteras tillbaka till en analog
 signal som kan tolkas av högtalaren.
 
 Liksom för valet av ADC i sändaren finns det en stor variation av tillgängliga 
-DAC:ar på marknaden. Eftersom att mottagaren ska vara kompatibel med sändaren
+DAC:ar på marknaden. Eftersom mottagaren ska vara kompatibel med sändaren
 är även denna 12-bitars seriell, och liksom ADC:n föll protokollvalet på SPI. 
 Även här var en enkel implementation av SPI avgörande och därför valdes 
-slutligen $DAC7611P$ för mottagarens DA-omvandling. 
+slutligen $DAC7611P$ \cite{dac} för mottagarens DA-omvandling. 
 
 Denna DAC kräver förutom $CS$-signalen även en $LD$-signal för att ladda in data
 i registret, se protokollet i Figur \ref{fig:dacprotocol}. Detta ger ett något 
 mer komplicerat grindnät än på sändarsidan, och 3 grindar krävs för att 
-producera insignalerna. Grindnätet baseras på sanningstabellen i Tabell 
-\ref{tab:dac}, och presenteras i Figur 
+producera insignalerna, men liksom för ADC:n används en 4-bitars räknare för att
+bestämma signalerna utifrån var i klockcykeln systemet befinner sig. Grindnätet 
+baseras på sanningstabellen i Tabell \ref{tab:dac}, och presenteras i Figur 
 \ref{fig:daccircuit}.
 
 \begin{figure}[h]
@@ -323,7 +326,8 @@ $cs$ = $x_3 \wedge x_2$
 
 $ld$ = $x3 \wedge x_2 \wedge (x_1 \oplus x_0)$
 
-\caption{Sanningstabell för styrsignaler för DA-omvandlaren.}
+\caption{Sanningstabell för styrsignaler för DA-omvandlaren. $x_i$ motsvarar den
+$i$:te datapinen från räknaren.}
 \label{tab:dac}
 \end{table}
 
@@ -340,15 +344,20 @@ $ld$ = $x3 \wedge x_2 \wedge (x_1 \oplus x_0)$
 \subsection{Klocka och klockpulser}
 
 Systemet utnyttjar flera synkrona integrerade kretsar som kräver en
-klockpuls. Klockpulsen styr kretsarnas arbetstakt, och således betyder en hög 
-klockpuls att systemet arbetar i en högre takt. Klockpulsen är i detta system 
-input till de två integrerade kretsar som agerar sändare och mottagare, där den 
-styr hastigheten på kretsernas räknarkomponent. I Figur \ref{fig:adccircuit} och 
-\ref{fig:daccircuit} kan observeras att var sextonde klockpuls ger så kallad 
-\textit{chip select} signal i båda kretsarna, vilket innebär att AD- eller 
-DA-omvandlaren ska börja sampla ett nytt värde. Detta i sin tur innebär att 
-systemets verkliga arbetstakt gällande konvertering mellan analoga och digitala 
-ljudsignaler är $\frac{1}{16}$ av den givna klockfrekvensen.
+klockpuls. Klockpulsen styr kretsarnas arbetstakt, och således betyder en 
+högfrekvent klockpuls att systemet arbetar i en högre takt. Klockpulsen är i 
+detta system input till de två integrerade kretsar som agerar sändare och 
+mottagare, där den styr hastigheten på kretsernas räknarkomponent. I Figur 
+\ref{fig:adccircuit} och \ref{fig:daccircuit} kan observeras att var sextonde 
+klockpuls ger så kallad \textit{chip select} signal i båda kretsarna, vilket 
+innebär att AD- eller DA-omvandlaren ska börja sampla ett nytt värde. Detta i 
+sin tur innebär att systemets verkliga arbetstakt gällande konvertering mellan 
+analoga och digitala ljudsignaler är $\frac{1}{16}$ av den givna 
+klockfrekvensen. Detta eftersom den seriella signalen överförs bit för bit, 
+och mottagaren inte kan ändra utsignalen förrän hela det binära talet har 
+överförts. Medan den binära representationen endast kräver 12 bitar använder 
+systemet ytterligare fyra klockpulser för provtagning på insignalen, och därmed 
+överförs endast ett diskret värde var 16 klockpuls.
 
 Konvertering av tidskontinuerliga signaler till tidsdiskreta signaler beskrivs 
 av \textit{Nyquist-Shannons samplingsteorem} \cite{sampling}. Teoremet säger i 
@@ -357,30 +366,43 @@ signaler bör samplingstakten vara minst dubbla signalens bandbredd. I detta
 projekt antas en bandbredd på $4KHz$ täcka det frekvensband som krävs för att 
 fånga upp alla nyanser av mänskligt tal. Samplingsfrekvensen måste då vara 
 minst $8KHz$ vilket i sin tur innebär att systemets klockfrekvens måste vara 
-minst $16 \times 8KHz = 128KHz$.
+minst $16 \times 8KHz = 128KHz$, återigen eftersom det tar 16 klockpulser att
+överföra signalen.
 
 Då en snabb klockpuls måste ges till hela systemet för att garantera tillräcklig 
 kvalitet på ljudsignalen krävs att de komponenter som ingår i systemet tål denna 
 höga klockpuls. Dessa komponenter inkluderar räknare, ADC och DAC.
 
-Eftersom att klocksynkronisering är ett stort och välkänt problem, har det 
+Eftersom klocksynkronisering är ett stort och välkänt problem, har det 
 utelämnats i detta projekt, och klockpulsen delas således av sändare och 
 mottagare i den nuvarande implementationen. 
 
+Utöver klocksynkroniseringen behöver sändare och mottagare även ha 
+synkroniserade räknare, eftersom dessa styr när komponenterna påbörjar sändning 
+respektive mottagning. Eftersom klockpulsen delas av båda delsystemen kommer
+deras respektive räknare att inkrementeras samtidigt, och problemet kan brytas
+ned till att endast säkerställa att räknarna återgår till 0 vid samma klockpuls. 
+För att initialt synkronisera sändare och mottagare läggs därför en hög 
+\emph{reset}-signal till DAC:en med en vanlig tryckknapp. Eftersom klockcyklerna 
+i systemet är 16 pulser långa (givet av 4-bitars räknare) innebär det att 
+pulsernas inbördes ordning anges modulo 16. Detta innebär vidare att det endast 
+finns 16 möjliga tidsrepresentationer, och att sannolikheten för att 
+båda räknarna ger 0 som utsignal efter en knapptryckning är  $\frac{1}{16}$. 
+Proceduren upprepas därför till dess att ljudåtergivningen är korrekt.
 
 \section{Resultat}
 
 Det implementerade systemet klarar av att relativt störningsfritt överföra 
 ljudsignaler mellan sändare och mottagare. Då en gemensam klocka används
 krävs ingen synkronisering under körning, däremot krävs initial synkronisering
-då komponenterna aktiveras vid olika tidpunkter. För att initialt 
-synkronisera sändare och mottagare läggs en hög \emph{reset}-signal till DAC:en 
-med en vanlig tryckknapp. Sannolikheten att komponenterna är synkroniserade
-efter en sådan signal är $\frac{1}{16}$, och proceduren upprepas således 
-till dess att ljudåtergivningen är korrekt. 
+då komponenterna aktiveras vid olika tidpunkter. 
 
-I Figur \ref{oscilloskop} kan den ursprungliga analoga ljudsignalen (efter förstärkning) ses jämte den återskapade analoga signalen efter att den digitala
-signalen avkodats. Det framgår tydligt hur den återskapade signalen är uppbyggd av ett antal diskreta värden, en effekt som avtar vid högre klockfrekvenser.
+I Figur \ref{oscilloskop} kan den ursprungliga analoga ljudsignalen (efter 
+förstärkning) ses jämte den återskapade analoga signalen efter att den digitala
+signalen avkodats. Det framgår tydligt hur den återskapade signalen är uppbyggd 
+av ett antal diskreta värden. När klockfrekvensen ökar blir de diskreta 
+intervallen kortare, och den återskapade signalens utseende närmar sig den 
+ursprungliga kontinuerliga insignalen.
 
 \begin{figure}[h]
 \centering
@@ -434,6 +456,19 @@ innehåller den valda synkroniseringsföljden (exempelvis 0110) skulle feltolkas
     pages 21-30,
     2008.
 }
+
+\bibitem{radio} "433 MHz Sändar- och mottagarmodul". (2015, June 16). 
+Retrieved from \url{http://www.kjell.com/sortiment/el/elektronik/fjarrstyrning/433-mhz-sandar-och-mottagarmodul-p88905}.
+
+\bibitem{adc} Burr-Brown Corporation, "12-Bit High Speed Micro Power Sampling 
+ANALOG-TO-DIGITAL CONVERTER," ADS7816 datasheet, March 1997.
+
+\bibitem{dac} Burr-Brown Corporation, "12-Bit Serial Input DIGITAL-TO-ANALOG 
+CONVERTER," DAC7611 datasheet, April 1998.
+
+\bibitem{mic} Kingstate Electronics Corp, "Electret Condenser Microphone,"
+KEEG1538WB-100LB datasheet, November 2009.
+
 \end{thebibliography}
 
 
